@@ -1,0 +1,396 @@
+{
+  "name": "ragdoll-cat",
+  "canvas": 92,
+  "scale": 2,
+  "groundOffset": 25,
+  "animations": {
+    "sitting_down": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "north": [
+          "sitting_down/north/frame_000.png",
+          "sitting_down/north/frame_001.png",
+          "sitting_down/north/frame_002.png",
+          "sitting_down/north/frame_003.png",
+          "sitting_down/north/frame_004.png",
+          "sitting_down/north/frame_005.png",
+          "sitting_down/north/frame_006.png",
+          "sitting_down/north/frame_007.png"
+        ],
+        "south": [
+          "sitting_down/south/frame_000.png",
+          "sitting_down/south/frame_001.png",
+          "sitting_down/south/frame_002.png",
+          "sitting_down/south/frame_003.png",
+          "sitting_down/south/frame_004.png",
+          "sitting_down/south/frame_005.png",
+          "sitting_down/south/frame_006.png",
+          "sitting_down/south/frame_007.png"
+        ],
+        "east": [
+          "sitting_down/east/frame_000.png",
+          "sitting_down/east/frame_001.png",
+          "sitting_down/east/frame_002.png",
+          "sitting_down/east/frame_003.png",
+          "sitting_down/east/frame_004.png",
+          "sitting_down/east/frame_005.png",
+          "sitting_down/east/frame_006.png",
+          "sitting_down/east/frame_007.png"
+        ],
+        "west": [
+          "sitting_down/west/frame_000.png",
+          "sitting_down/west/frame_001.png",
+          "sitting_down/west/frame_002.png",
+          "sitting_down/west/frame_003.png",
+          "sitting_down/west/frame_004.png",
+          "sitting_down/west/frame_005.png",
+          "sitting_down/west/frame_006.png",
+          "sitting_down/west/frame_007.png"
+        ]
+      }
+    },
+    "idle": {
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "west": [
+          "idle/west/frame_000.png",
+          "idle/west/frame_001.png",
+          "idle/west/frame_002.png",
+          "idle/west/frame_003.png",
+          "idle/west/frame_004.png",
+          "idle/west/frame_005.png",
+          "idle/west/frame_006.png",
+          "idle/west/frame_007.png"
+        ],
+        "north": [
+          "idle/north/frame_000.png",
+          "idle/north/frame_001.png",
+          "idle/north/frame_002.png",
+          "idle/north/frame_003.png",
+          "idle/north/frame_004.png",
+          "idle/north/frame_005.png",
+          "idle/north/frame_006.png",
+          "idle/north/frame_007.png"
+        ],
+        "east": [
+          "idle/east/frame_000.png",
+          "idle/east/frame_001.png",
+          "idle/east/frame_002.png",
+          "idle/east/frame_003.png",
+          "idle/east/frame_004.png",
+          "idle/east/frame_005.png",
+          "idle/east/frame_006.png",
+          "idle/east/frame_007.png"
+        ],
+        "south": [
+          "idle/south/frame_000.png",
+          "idle/south/frame_001.png",
+          "idle/south/frame_002.png",
+          "idle/south/frame_003.png",
+          "idle/south/frame_004.png",
+          "idle/south/frame_005.png",
+          "idle/south/frame_006.png",
+          "idle/south/frame_007.png"
+        ]
+      }
+    },
+    "licking": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "east": [
+          "licking/east/frame_000.png",
+          "licking/east/frame_001.png",
+          "licking/east/frame_002.png",
+          "licking/east/frame_003.png",
+          "licking/east/frame_004.png",
+          "licking/east/frame_005.png",
+          "licking/east/frame_006.png",
+          "licking/east/frame_007.png",
+          "licking/east/frame_008.png",
+          "licking/east/frame_009.png",
+          "licking/east/frame_010.png",
+          "licking/east/frame_011.png"
+        ],
+        "north": [
+          "licking/north/frame_000.png",
+          "licking/north/frame_001.png",
+          "licking/north/frame_002.png",
+          "licking/north/frame_003.png",
+          "licking/north/frame_004.png",
+          "licking/north/frame_005.png",
+          "licking/north/frame_006.png",
+          "licking/north/frame_007.png",
+          "licking/north/frame_008.png",
+          "licking/north/frame_009.png",
+          "licking/north/frame_010.png",
+          "licking/north/frame_011.png"
+        ],
+        "south": [
+          "licking/south/frame_000.png",
+          "licking/south/frame_001.png",
+          "licking/south/frame_002.png",
+          "licking/south/frame_003.png",
+          "licking/south/frame_004.png",
+          "licking/south/frame_005.png",
+          "licking/south/frame_006.png",
+          "licking/south/frame_007.png",
+          "licking/south/frame_008.png",
+          "licking/south/frame_009.png",
+          "licking/south/frame_010.png",
+          "licking/south/frame_011.png"
+        ],
+        "west": [
+          "licking/west/frame_000.png",
+          "licking/west/frame_001.png",
+          "licking/west/frame_002.png",
+          "licking/west/frame_003.png",
+          "licking/west/frame_004.png",
+          "licking/west/frame_005.png",
+          "licking/west/frame_006.png",
+          "licking/west/frame_007.png",
+          "licking/west/frame_008.png",
+          "licking/west/frame_009.png",
+          "licking/west/frame_010.png",
+          "licking/west/frame_011.png"
+        ]
+      }
+    },
+    "yawning": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "south": [
+          "yawning/south/frame_000.png",
+          "yawning/south/frame_001.png",
+          "yawning/south/frame_002.png",
+          "yawning/south/frame_003.png",
+          "yawning/south/frame_004.png",
+          "yawning/south/frame_005.png",
+          "yawning/south/frame_006.png",
+          "yawning/south/frame_007.png",
+          "yawning/south/frame_008.png",
+          "yawning/south/frame_009.png",
+          "yawning/south/frame_010.png"
+        ],
+        "east": [
+          "yawning/east/frame_000.png",
+          "yawning/east/frame_001.png",
+          "yawning/east/frame_002.png",
+          "yawning/east/frame_003.png",
+          "yawning/east/frame_004.png",
+          "yawning/east/frame_005.png",
+          "yawning/east/frame_006.png",
+          "yawning/east/frame_007.png",
+          "yawning/east/frame_008.png",
+          "yawning/east/frame_009.png",
+          "yawning/east/frame_010.png"
+        ],
+        "west": [
+          "yawning/west/frame_000.png",
+          "yawning/west/frame_001.png",
+          "yawning/west/frame_002.png",
+          "yawning/west/frame_003.png",
+          "yawning/west/frame_004.png",
+          "yawning/west/frame_005.png",
+          "yawning/west/frame_006.png",
+          "yawning/west/frame_007.png",
+          "yawning/west/frame_008.png",
+          "yawning/west/frame_009.png",
+          "yawning/west/frame_010.png"
+        ]
+      }
+    },
+    "jumping": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "west": [
+          "jumping/west/frame_000.png",
+          "jumping/west/frame_001.png",
+          "jumping/west/frame_002.png",
+          "jumping/west/frame_003.png",
+          "jumping/west/frame_004.png",
+          "jumping/west/frame_005.png",
+          "jumping/west/frame_006.png",
+          "jumping/west/frame_007.png"
+        ],
+        "east": [
+          "jumping/east/frame_000.png",
+          "jumping/east/frame_001.png",
+          "jumping/east/frame_002.png",
+          "jumping/east/frame_003.png",
+          "jumping/east/frame_004.png",
+          "jumping/east/frame_005.png",
+          "jumping/east/frame_006.png",
+          "jumping/east/frame_007.png"
+        ],
+        "north": [
+          "jumping/north/frame_000.png",
+          "jumping/north/frame_001.png",
+          "jumping/north/frame_002.png",
+          "jumping/north/frame_003.png",
+          "jumping/north/frame_004.png",
+          "jumping/north/frame_005.png",
+          "jumping/north/frame_006.png",
+          "jumping/north/frame_007.png"
+        ],
+        "south": [
+          "jumping/south/frame_000.png",
+          "jumping/south/frame_001.png",
+          "jumping/south/frame_002.png",
+          "jumping/south/frame_003.png",
+          "jumping/south/frame_004.png",
+          "jumping/south/frame_005.png",
+          "jumping/south/frame_006.png",
+          "jumping/south/frame_007.png"
+        ]
+      }
+    },
+    "sleep": {
+      "fps": 4,
+      "loop": true,
+      "directions": {
+        "south": [
+          "sleep/south/frame_000.png",
+          "sleep/south/frame_001.png",
+          "sleep/south/frame_002.png",
+          "sleep/south/frame_003.png",
+          "sleep/south/frame_004.png",
+          "sleep/south/frame_005.png",
+          "sleep/south/frame_006.png"
+        ]
+      },
+      "loopFrom": 4
+    },
+    "working": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "south": [
+          "working/south/frame_000.png",
+          "working/south/frame_001.png",
+          "working/south/frame_002.png",
+          "working/south/frame_003.png",
+          "working/south/frame_004.png",
+          "working/south/frame_005.png",
+          "working/south/frame_006.png",
+          "working/south/frame_007.png",
+          "working/south/frame_008.png"
+        ]
+      },
+      "loopFrom": 1
+    },
+    "celebrate": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "south": [
+          "celebrate/south/frame_000.png",
+          "celebrate/south/frame_001.png",
+          "celebrate/south/frame_002.png",
+          "celebrate/south/frame_003.png",
+          "celebrate/south/frame_004.png",
+          "celebrate/south/frame_005.png",
+          "celebrate/south/frame_006.png",
+          "celebrate/south/frame_007.png",
+          "celebrate/south/frame_008.png"
+        ]
+      },
+      "loopFrom": 1
+    },
+    "walking": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "west": [
+          "walking/west/frame_000.png",
+          "walking/west/frame_001.png",
+          "walking/west/frame_002.png",
+          "walking/west/frame_003.png",
+          "walking/west/frame_004.png",
+          "walking/west/frame_005.png"
+        ],
+        "south": [
+          "walking/south/frame_000.png",
+          "walking/south/frame_001.png",
+          "walking/south/frame_002.png",
+          "walking/south/frame_003.png",
+          "walking/south/frame_004.png",
+          "walking/south/frame_005.png"
+        ],
+        "east": [
+          "walking/east/frame_000.png",
+          "walking/east/frame_001.png",
+          "walking/east/frame_002.png",
+          "walking/east/frame_003.png",
+          "walking/east/frame_004.png",
+          "walking/east/frame_005.png"
+        ],
+        "north": [
+          "walking/north/frame_000.png",
+          "walking/north/frame_001.png",
+          "walking/north/frame_002.png",
+          "walking/north/frame_003.png",
+          "walking/north/frame_004.png",
+          "walking/north/frame_005.png"
+        ]
+      }
+    },
+    "running": {
+      "fps": 14,
+      "loop": true,
+      "directions": {
+        "north": [
+          "running/north/frame_000.png",
+          "running/north/frame_001.png",
+          "running/north/frame_002.png",
+          "running/north/frame_003.png",
+          "running/north/frame_004.png",
+          "running/north/frame_005.png"
+        ],
+        "west": [
+          "running/west/frame_000.png",
+          "running/west/frame_001.png",
+          "running/west/frame_002.png",
+          "running/west/frame_003.png",
+          "running/west/frame_004.png",
+          "running/west/frame_005.png"
+        ],
+        "south": [
+          "running/south/frame_000.png",
+          "running/south/frame_001.png",
+          "running/south/frame_002.png",
+          "running/south/frame_003.png",
+          "running/south/frame_004.png",
+          "running/south/frame_005.png"
+        ],
+        "east": [
+          "running/east/frame_000.png",
+          "running/east/frame_001.png",
+          "running/east/frame_002.png",
+          "running/east/frame_003.png",
+          "running/east/frame_004.png",
+          "running/east/frame_005.png"
+        ]
+      }
+    }
+  },
+  "states": {
+    "idle": "idle",
+    "walk": "walking",
+    "run": "running",
+    "sit": "sitting_down",
+    "groom": "licking",
+    "yawn": "yawning",
+    "sleep": "sleep",
+    "alert": "jumping",
+    "working": "working",
+    "celebrate": "celebrate",
+    "pet": "licking",
+    "dragged": "idle",
+    "falling": "jumping"
+  }
+}

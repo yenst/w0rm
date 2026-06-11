@@ -1,0 +1,19 @@
+[package]
+name = "w0rm"
+version = "0.1.0"
+description = "A pixel-art desktop companion"
+authors = ["jens"]
+edition = "2021"
+
+[lib]
+name = "w0rm_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tiny_http = "0.12"
