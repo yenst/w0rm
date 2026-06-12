@@ -177,8 +177,9 @@
       }
     },
     "drop": {
-      "fps": 12,
-      "loop": false,
+      "fps": 10,
+      "loop": true,
+      "loopFrom": 2,
       "directions": {
         "south": [
           "drop/south/frame_000.png",
@@ -186,10 +187,7 @@
           "drop/south/frame_002.png",
           "drop/south/frame_003.png",
           "drop/south/frame_004.png",
-          "drop/south/frame_005.png",
-          "drop/south/frame_006.png",
-          "drop/south/frame_007.png",
-          "drop/south/frame_008.png"
+          "drop/south/frame_005.png"
         ]
       }
     },
