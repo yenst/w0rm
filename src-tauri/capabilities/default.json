@@ -20,6 +20,7 @@
     "core:window:allow-show",
     "core:window:allow-hide",
     "core:window:allow-set-focus",
+    "core:window:allow-cursor-position",
     "core:tray:default",
     "core:menu:default",
     "core:app:allow-default-window-icon"

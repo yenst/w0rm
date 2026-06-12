@@ -55,12 +55,16 @@ const STATES: Record<string, string | string[]> = {
   groom: "licking",
   yawn: "yawning",
   sleep: "sleep",
-  alert: "jumping",
+  alert: "sitting_down",
   working: "working",
   celebrate: "celebrate",
   pet: "licking",
   dragged: "idle",
-  falling: "jumping",
+  falling: "idle",
+  stalk: "walking",
+  windup: "pounce_windup",
+  pounce: "jumping",
+  swat: "swat",
 };
 
 async function main() {

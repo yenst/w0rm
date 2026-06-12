@@ -4,6 +4,16 @@ import { defaultWindowIcon } from "@tauri-apps/api/app";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 
+async function trayIconBytes(): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch("/tray.png");
+    if (!res.ok) return null;
+    return new Uint8Array(await res.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
 export const PACK_STORAGE_KEY = "w0rm.pack";
 
 async function availablePacks(): Promise<string[]> {
@@ -56,7 +66,7 @@ export async function setupTray(currentPack: string): Promise<void> {
   await TrayIcon.removeById("w0rm-tray").catch(() => {});
   await TrayIcon.new({
     id: "w0rm-tray",
-    icon: (await defaultWindowIcon()) ?? undefined,
+    icon: (await trayIconBytes()) ?? (await defaultWindowIcon()) ?? undefined,
     menu,
     showMenuOnLeftClick: true,
     tooltip: "w0rm",

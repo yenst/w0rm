@@ -17,7 +17,8 @@ Sprites are generated with [PixelLab](https://pixellab.ai).
 
 ```sh
 bun install
-bun run tauri dev
+bun start      # dev mode: live app with hot reload, no bundling
+bun package    # release build: produces .app + .dmg
 ```
 
 ## Claude Code integration

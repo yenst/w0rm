@@ -1,0 +1,306 @@
+{
+  "name": "worm",
+  "canvas": 92,
+  "scale": 2,
+  "groundOffset": 25,
+  "animations": {
+    "idle": {
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "south": [
+          "idle/south/frame_000.png",
+          "idle/south/frame_001.png",
+          "idle/south/frame_002.png",
+          "idle/south/frame_003.png",
+          "idle/south/frame_004.png",
+          "idle/south/frame_005.png",
+          "idle/south/frame_006.png",
+          "idle/south/frame_007.png"
+        ],
+        "east": [
+          "idle/east/frame_000.png",
+          "idle/east/frame_001.png",
+          "idle/east/frame_002.png",
+          "idle/east/frame_003.png",
+          "idle/east/frame_004.png",
+          "idle/east/frame_005.png",
+          "idle/east/frame_006.png",
+          "idle/east/frame_007.png"
+        ],
+        "west": [
+          "idle/west/frame_000.png",
+          "idle/west/frame_001.png",
+          "idle/west/frame_002.png",
+          "idle/west/frame_003.png",
+          "idle/west/frame_004.png",
+          "idle/west/frame_005.png",
+          "idle/west/frame_006.png",
+          "idle/west/frame_007.png"
+        ],
+        "north": [
+          "idle/north/frame_000.png",
+          "idle/north/frame_001.png",
+          "idle/north/frame_002.png",
+          "idle/north/frame_003.png",
+          "idle/north/frame_004.png",
+          "idle/north/frame_005.png",
+          "idle/north/frame_006.png",
+          "idle/north/frame_007.png"
+        ]
+      }
+    },
+    "walking": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "east": [
+          "walking/east/frame_000.png",
+          "walking/east/frame_001.png",
+          "walking/east/frame_002.png",
+          "walking/east/frame_003.png",
+          "walking/east/frame_004.png",
+          "walking/east/frame_005.png"
+        ],
+        "west": [
+          "walking/west/frame_000.png",
+          "walking/west/frame_001.png",
+          "walking/west/frame_002.png",
+          "walking/west/frame_003.png",
+          "walking/west/frame_004.png",
+          "walking/west/frame_005.png"
+        ],
+        "south": [
+          "walking/south/frame_000.png",
+          "walking/south/frame_001.png",
+          "walking/south/frame_002.png",
+          "walking/south/frame_003.png",
+          "walking/south/frame_004.png",
+          "walking/south/frame_005.png"
+        ],
+        "north": [
+          "walking/north/frame_000.png",
+          "walking/north/frame_001.png",
+          "walking/north/frame_002.png",
+          "walking/north/frame_003.png",
+          "walking/north/frame_004.png",
+          "walking/north/frame_005.png"
+        ]
+      }
+    },
+    "running": {
+      "fps": 14,
+      "loop": true,
+      "directions": {
+        "east": [
+          "running/east/frame_000.png",
+          "running/east/frame_001.png",
+          "running/east/frame_002.png",
+          "running/east/frame_003.png",
+          "running/east/frame_004.png",
+          "running/east/frame_005.png",
+          "running/east/frame_006.png",
+          "running/east/frame_007.png"
+        ],
+        "west": [
+          "running/west/frame_000.png",
+          "running/west/frame_001.png",
+          "running/west/frame_002.png",
+          "running/west/frame_003.png",
+          "running/west/frame_004.png",
+          "running/west/frame_005.png",
+          "running/west/frame_006.png",
+          "running/west/frame_007.png"
+        ]
+      }
+    },
+    "jumping": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "east": [
+          "jumping/east/frame_000.png",
+          "jumping/east/frame_001.png",
+          "jumping/east/frame_002.png",
+          "jumping/east/frame_003.png",
+          "jumping/east/frame_004.png",
+          "jumping/east/frame_005.png",
+          "jumping/east/frame_006.png",
+          "jumping/east/frame_007.png"
+        ],
+        "west": [
+          "jumping/west/frame_000.png",
+          "jumping/west/frame_001.png",
+          "jumping/west/frame_002.png",
+          "jumping/west/frame_003.png",
+          "jumping/west/frame_004.png",
+          "jumping/west/frame_005.png",
+          "jumping/west/frame_006.png",
+          "jumping/west/frame_007.png"
+        ]
+      }
+    },
+    "lie_down": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "south": [
+          "lie_down/south/frame_000.png",
+          "lie_down/south/frame_001.png",
+          "lie_down/south/frame_002.png",
+          "lie_down/south/frame_003.png",
+          "lie_down/south/frame_004.png",
+          "lie_down/south/frame_005.png",
+          "lie_down/south/frame_006.png",
+          "lie_down/south/frame_007.png",
+          "lie_down/south/frame_008.png",
+          "lie_down/south/frame_009.png"
+        ]
+      }
+    },
+    "lying_idle": {
+      "fps": 4,
+      "loop": true,
+      "directions": {
+        "south": [
+          "lying_idle/south/frame_000.png",
+          "lying_idle/south/frame_001.png",
+          "lying_idle/south/frame_002.png",
+          "lying_idle/south/frame_003.png",
+          "lying_idle/south/frame_004.png",
+          "lying_idle/south/frame_005.png",
+          "lying_idle/south/frame_006.png",
+          "lying_idle/south/frame_007.png",
+          "lying_idle/south/frame_008.png",
+          "lying_idle/south/frame_009.png"
+        ]
+      }
+    },
+    "drop": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "south": [
+          "drop/south/frame_000.png",
+          "drop/south/frame_001.png",
+          "drop/south/frame_002.png",
+          "drop/south/frame_003.png",
+          "drop/south/frame_004.png",
+          "drop/south/frame_005.png",
+          "drop/south/frame_006.png",
+          "drop/south/frame_007.png",
+          "drop/south/frame_008.png"
+        ]
+      }
+    },
+    "wave_sign": {
+      "fps": 8,
+      "loop": true,
+      "loopFrom": 3,
+      "directions": {
+        "south": [
+          "wave_sign/south/frame_000.png",
+          "wave_sign/south/frame_001.png",
+          "wave_sign/south/frame_002.png",
+          "wave_sign/south/frame_003.png",
+          "wave_sign/south/frame_004.png",
+          "wave_sign/south/frame_005.png",
+          "wave_sign/south/frame_006.png",
+          "wave_sign/south/frame_007.png",
+          "wave_sign/south/frame_008.png"
+        ]
+      }
+    },
+    "stand_up": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "south": [
+          "stand_up/south/frame_000.png",
+          "stand_up/south/frame_001.png",
+          "stand_up/south/frame_002.png",
+          "stand_up/south/frame_003.png",
+          "stand_up/south/frame_004.png",
+          "stand_up/south/frame_005.png",
+          "stand_up/south/frame_006.png",
+          "stand_up/south/frame_007.png"
+        ]
+      }
+    },
+    "typing": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "south": [
+          "typing/south/frame_000.png",
+          "typing/south/frame_001.png",
+          "typing/south/frame_002.png",
+          "typing/south/frame_003.png",
+          "typing/south/frame_004.png"
+        ]
+      }
+    },
+    "pounce_windup": {
+      "fps": 10,
+      "loop": false,
+      "directions": {
+        "east": [
+          "pounce_windup/east/frame_000.png",
+          "pounce_windup/east/frame_001.png",
+          "pounce_windup/east/frame_002.png",
+          "pounce_windup/east/frame_003.png",
+          "pounce_windup/east/frame_004.png",
+          "pounce_windup/east/frame_005.png",
+          "pounce_windup/east/frame_006.png",
+          "pounce_windup/east/frame_007.png",
+          "pounce_windup/east/frame_008.png"
+        ],
+        "west": [
+          "pounce_windup/west/frame_000.png",
+          "pounce_windup/west/frame_001.png",
+          "pounce_windup/west/frame_002.png",
+          "pounce_windup/west/frame_003.png",
+          "pounce_windup/west/frame_004.png",
+          "pounce_windup/west/frame_005.png",
+          "pounce_windup/west/frame_006.png",
+          "pounce_windup/west/frame_007.png",
+          "pounce_windup/west/frame_008.png"
+        ]
+      }
+    },
+    "swat": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "south": [
+          "swat/south/frame_000.png",
+          "swat/south/frame_001.png",
+          "swat/south/frame_002.png",
+          "swat/south/frame_003.png",
+          "swat/south/frame_004.png",
+          "swat/south/frame_005.png",
+          "swat/south/frame_006.png"
+        ]
+      }
+    }
+  },
+  "states": {
+    "idle": "idle",
+    "walk": "walking",
+    "run": "walking",
+    "sit": "lie_down",
+    "groom": "licking",
+    "yawn": "yawning",
+    "sleep": "lying_idle",
+    "alert": "wave_sign",
+    "working": "typing",
+    "celebrate": "celebrate",
+    "pet": "licking",
+    "dragged": "drop",
+    "falling": "drop",
+    "stalk": "walking",
+    "windup": "pounce_windup",
+    "pounce": "jumping",
+    "swat": "swat"
+  }
+}

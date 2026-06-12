@@ -5,7 +5,7 @@ import { SpriteRenderer } from "./renderer";
 import { Behavior } from "./behavior";
 import { PACK_STORAGE_KEY, setupTray } from "./tray";
 
-const DEFAULT_PACK = "ragdoll-cat";
+const DEFAULT_PACK = "worm";
 const PACK_NAME = localStorage.getItem(PACK_STORAGE_KEY) ?? DEFAULT_PACK;
 const PACK_URL = `/packs/${PACK_NAME}`;
 const DRAG_THRESHOLD_PX = 5;
@@ -27,29 +27,37 @@ async function boot() {
     behavior.setClaudeState(e.payload as Parameters<typeof behavior.setClaudeState>[0]);
   });
 
-  await win.onMoved(({ payload }) => behavior.onWindowMoved(payload));
-
-  // click = pet, move past threshold = native window drag
+  // click = pet, move past threshold = manual drag that follows the cursor
+  // until pointerup (pointer capture keeps events flowing while we move the
+  // window underneath the cursor)
   canvas.addEventListener("pointerdown", (down) => {
     let dragging = false;
     const startX = down.screenX;
     const startY = down.screenY;
+    const grab = behavior.grabInfo();
+    canvas.setPointerCapture(down.pointerId);
 
     const onMove = (move: PointerEvent) => {
-      if (dragging) return;
-      const dist = Math.hypot(move.screenX - startX, move.screenY - startY);
-      if (dist >= DRAG_THRESHOLD_PX) {
+      const dx = move.screenX - startX;
+      const dy = move.screenY - startY;
+      if (!dragging && Math.hypot(dx, dy) >= DRAG_THRESHOLD_PX) {
         dragging = true;
-        cleanup();
         behavior.startDrag();
-        void win.startDragging();
+      }
+      if (dragging) {
+        behavior.dragTo(
+          grab.x + dx * grab.scaleFactor,
+          grab.y + dy * grab.scaleFactor,
+        );
       }
     };
     const onUp = () => {
       cleanup();
-      if (!dragging) behavior.tap();
+      if (dragging) void behavior.drop();
+      else behavior.tap();
     };
     const cleanup = () => {
+      canvas.releasePointerCapture(down.pointerId);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointercancel", onUp);

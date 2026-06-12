@@ -2,6 +2,7 @@ import {
   getCurrentWindow,
   primaryMonitor,
   availableMonitors,
+  cursorPosition,
   PhysicalPosition,
   type Monitor,
 } from "@tauri-apps/api/window";
@@ -23,11 +24,15 @@ export type Mood =
   | "celebrate"
   | "pet"
   | "dragged"
-  | "falling";
+  | "falling"
+  | "stalk"
+  | "windup"
+  | "pounce"
+  | "swat";
 
 const GRAVITY = 3800; // physical px/s^2
-const WALK_SPEED = 42; // logical px/s
-const RUN_SPEED = 120;
+const WALK_SPEED = 55; // logical px/s
+const RUN_SPEED = 180;
 const SLEEP_AFTER_MS = 120_000;
 const CELEBRATE_SECONDS = 5;
 const EDGE_MARGIN = 8; // logical px
@@ -39,14 +44,21 @@ const AUTONOMOUS: [Mood, number, number, number][] = [
   ["sit", 8, 4, 8],
   ["groom", 6, 0, 0], // duration = two clip cycles
   ["yawn", 3, 0, 0], // ends when the clip finishes
-  ["run", 3, 0, 0],
 ];
 
 /** rare moods — never picked twice in a row; always return to walk/idle first */
-const SPECIALS: Mood[] = ["sit", "groom", "yawn", "run"];
+const SPECIALS: Mood[] = ["sit", "groom", "yawn"];
 
 /** minimum seconds between two special moods */
 const SPECIAL_COOLDOWN_S = 30;
+
+// cursor chase tuning (logical px unless noted)
+const CHASE_COOLDOWN_S = 120; // min time between hunts
+const STALK_SPEED = 30;
+const POUNCE_SECONDS = 0.45; // time to reach the cursor mid-leap
+const POUNCE_RANGE = 170; // close enough to wind up
+const CHASE_TRIGGER_NEAR = 120;
+const CHASE_TRIGGER_FAR = 700;
 
 export class Behavior {
   mood: Mood = "idle";
@@ -56,15 +68,30 @@ export class Behavior {
   private x = 0;
   private y = 0;
   private targetX = 0;
+  private vx = 0;
   private vy = 0;
+  // cursor velocity tracking while dragged, for throw momentum
+  private dragVx = 0;
+  private dragVy = 0;
+  private lastDragX = 0;
+  private lastDragY = 0;
+  private lastDragT = 0;
   private monitor: Monitor | null = null;
   private lastInteraction = Date.now();
   private lastSpecialAt = 0;
-  private alertCalmed = false;
+  private recoverTimer = 3;
+  private fallTime = 0;
+  private cursor: { x: number; y: number } | null = null;
+  private cursorPoll = 0;
+  private chasePoll = 0;
+  private chaseCooldownUntil = 0;
+  // recent cursor samples for shake detection
+  private cursorTrail: { x: number; y: number; t: number }[] = [];
+  private wiggleCooldownUntil = 0;
   private win = getCurrentWindow();
   private winSize = 184; // physical px, set in init
   private posInFlight = false;
-  private dropTimer: ReturnType<typeof setTimeout> | null = null;
+  private posInFlightSince = 0;
 
   constructor(
     private pack: Pack,
@@ -100,6 +127,14 @@ export class Behavior {
       m.groundOffset * m.scale * scaleFactor -
       this.winSize / 2
     );
+  }
+
+  /** lowest y the window may reach — stays clear of the menu bar / notch,
+   * where macOS hides borderless windows */
+  private ceilingY(): number {
+    if (!this.monitor) return 0;
+    const sf = this.monitor.scaleFactor ?? 1;
+    return this.monitor.position.y + 44 * sf;
   }
 
   private bounds(): { min: number; max: number } {
@@ -167,7 +202,28 @@ export class Behavior {
         this.moodTimer = Infinity;
         break;
       case "falling":
+        this.fallTime = 0;
         this.moodTimer = Infinity;
+        break;
+      case "stalk": {
+        const cx = this.x + this.winSize / 2;
+        this.dir = (this.cursor?.x ?? cx) > cx ? "east" : "west";
+        this.moodTimer = 20; // give up eventually
+        break;
+      }
+      case "windup":
+        this.moodTimer = 1.4; // refined to the clip length after play()
+        break;
+      case "pounce": {
+        const sf = this.monitor?.scaleFactor ?? 1;
+        const targetX = (this.cursor?.x ?? this.x) - this.winSize / 2;
+        this.vx = (targetX - this.x) / POUNCE_SECONDS;
+        this.vy = -850 * sf;
+        this.moodTimer = 5;
+        break;
+      }
+      case "swat":
+        this.moodTimer = 30; // ends when the clip finishes
         break;
     }
 
@@ -175,11 +231,70 @@ export class Behavior {
     if (mood === "groom") {
       this.moodTimer = (this.renderer.clipDuration() ?? 2) * 2;
     }
-    if (mood === "alert") {
-      // jump a few times to get attention, then settle (see update())
-      this.alertCalmed = false;
-      this.moodTimer = (this.renderer.clipDuration() ?? 1) * 3;
+    if (mood === "windup") {
+      this.moodTimer = this.renderer.clipDuration() ?? 1.4;
     }
+  }
+
+  private async pollCursor(): Promise<void> {
+    try {
+      const p = await cursorPosition();
+      this.cursor = { x: p.x, y: p.y };
+      const now = Date.now();
+      this.cursorTrail.push({ x: p.x, y: p.y, t: now });
+      this.cursorTrail = this.cursorTrail.filter((s) => now - s.t < 2000);
+      this.detectWiggle();
+    } catch {
+      this.cursor = null;
+    }
+  }
+
+  /** vigorous cursor shaking = irresistible prey. A shake is lots of
+   * movement that goes nowhere: long path, small net displacement. */
+  private detectWiggle(): void {
+    const trail = this.cursorTrail;
+    if (trail.length < 8) return;
+    const now = Date.now();
+    if (now - trail[0].t < 1000) return; // need ~1s of history
+
+    let pathLen = 0;
+    for (let i = 1; i < trail.length; i++) {
+      pathLen += Math.hypot(
+        trail[i].x - trail[i - 1].x,
+        trail[i].y - trail[i - 1].y,
+      );
+    }
+    const first = trail[0];
+    const last = trail[trail.length - 1];
+    const netDisp = Math.hypot(last.x - first.x, last.y - first.y);
+
+    const sf = this.monitor?.scaleFactor ?? 1;
+    if (pathLen < 500 * sf) return; // not energetic enough
+    if (netDisp > pathLen / 4) return; // just moving somewhere, not shaking
+
+    this.cursorTrail = [];
+    if (now < this.wiggleCooldownUntil) return;
+    if (this.claude !== null) return;
+    if (!["idle", "walk", "sit", "groom", "yawn"].includes(this.mood)) return;
+    // a deliberate tease beats the regular hunt cooldown
+    this.wiggleCooldownUntil = now + 15_000;
+    this.enter("stalk");
+  }
+
+  /** occasionally decide the cursor is prey */
+  private maybeStartChase(): void {
+    if (this.mood !== "idle" && this.mood !== "walk") return;
+    if (this.claude !== null) return;
+    if (Date.now() < this.chaseCooldownUntil) return;
+    if (!this.cursor || !this.monitor) return;
+    const sf = this.monitor.scaleFactor ?? 1;
+    const dx = this.cursor.x - (this.x + this.winSize / 2);
+    const dy = this.cursor.y - (this.y + this.winSize / 2);
+    if (Math.abs(dy) > 260 * sf) return; // cursor too high above the floor
+    const adx = Math.abs(dx);
+    if (adx < CHASE_TRIGGER_NEAR * sf || adx > CHASE_TRIGGER_FAR * sf) return;
+    if (Math.random() > 0.12) return; // ~once in a while when you linger low
+    this.enter("stalk");
   }
 
   private pickAutonomous(): void {
@@ -217,8 +332,46 @@ export class Behavior {
     this.enter(picked);
   }
 
+  /** snap back to a safe on-screen spot */
+  private rescue(): void {
+    const { min, max } = this.bounds();
+    this.x = Math.min(Math.max(this.x, min), max);
+    this.y = this.groundY();
+    this.vx = 0;
+    this.vy = 0;
+    void this.pushPosition();
+    this.enter("idle");
+  }
+
   update(dt: number): void {
     this.moodTimer -= dt;
+
+    // watch the cursor closely (shake detection needs ~10Hz sampling)
+    this.cursorPoll -= dt;
+    if (this.cursorPoll <= 0) {
+      this.cursorPoll = 0.1;
+      void this.pollCursor();
+    }
+    this.chasePoll -= dt;
+    if (this.chasePoll <= 0) {
+      this.chasePoll = 0.35;
+      this.maybeStartChase();
+    }
+
+    // safety net: if the window somehow ends up outside the visible screen
+    // area (wild throw, monitor change), bring the cat back
+    this.recoverTimer -= dt;
+    if (this.recoverTimer <= 0) {
+      this.recoverTimer = 3;
+      if (this.mood !== "dragged" && this.mood !== "falling" && this.monitor) {
+        const { min, max } = this.bounds();
+        const offX = this.x < min - this.winSize || this.x > max + this.winSize;
+        const offY =
+          this.y > this.groundY() + this.winSize ||
+          this.y < this.monitor.position.y - 3 * this.winSize;
+        if (offX || offY) this.rescue();
+      }
+    }
 
     switch (this.mood) {
       case "walk":
@@ -238,13 +391,45 @@ export class Behavior {
         break;
       }
       case "falling": {
+        // a throw can never lose the cat: cap tumble time
+        this.fallTime += dt;
+        if (this.fallTime > 6) {
+          this.rescue();
+          break;
+        }
         this.vy += GRAVITY * dt;
+        this.x += this.vx * dt;
         this.y += this.vy * dt;
+
+        // bounce off the screen edges
+        const { min, max } = this.bounds();
+        if (this.x <= min) {
+          this.x = min;
+          this.vx = Math.abs(this.vx) * 0.6;
+        } else if (this.x >= max) {
+          this.x = max;
+          this.vx = -Math.abs(this.vx) * 0.6;
+        }
+
+        // bounce off the menu bar / notch line instead of vanishing into it
+        const ceiling = this.ceilingY();
+        if (this.y <= ceiling && this.vy < 0) {
+          this.y = ceiling;
+          this.vy = Math.abs(this.vy) * 0.5;
+        }
+
+        // bounce on the ground, losing energy each time
         const ground = this.groundY();
-        if (this.y >= ground) {
+        if (this.y >= ground && this.vy > 0) {
           this.y = ground;
-          this.vy = 0;
-          this.enter("idle");
+          this.vy = -this.vy * 0.45;
+          this.vx *= 0.7;
+          if (Math.abs(this.vy) < 160) {
+            this.vx = 0;
+            this.vy = 0;
+            this.y = ground;
+            this.enter("idle");
+          }
         }
         void this.pushPosition();
         break;
@@ -255,13 +440,73 @@ export class Behavior {
           this.pickAutonomous();
         }
         break;
-      case "alert":
-        // after the attention jumps, sit and wait instead of jumping forever
-        if (!this.alertCalmed && this.moodTimer <= 0) {
-          this.alertCalmed = true;
-          this.renderer.play(this.pack.animationFor("sit"), "south");
+      case "stalk": {
+        const sf = this.monitor?.scaleFactor ?? 1;
+        const cx = this.x + this.winSize / 2;
+        const dx = (this.cursor?.x ?? cx) - cx;
+        const dy = Math.abs(
+          (this.cursor?.y ?? this.y) - (this.y + this.winSize / 2),
+        );
+        // prey escaped (or we got bored)
+        if (
+          !this.cursor ||
+          Math.abs(dx) > 900 * sf ||
+          dy > 400 * sf ||
+          this.moodTimer <= 0
+        ) {
+          this.chaseCooldownUntil = Date.now() + 30_000;
+          this.enter("idle");
+          break;
         }
-        break; // cleared by a click or the next claude-state event
+        if (Math.abs(dx) <= POUNCE_RANGE * sf) {
+          this.enter("windup");
+          break;
+        }
+        const newDir = dx > 0 ? "east" : "west";
+        if (newDir !== this.dir) {
+          this.dir = newDir;
+          this.renderer.play(this.pack.animationFor("stalk"), this.dir);
+        }
+        const { min, max } = this.bounds();
+        this.x += STALK_SPEED * sf * dt * (dx > 0 ? 1 : -1);
+        this.x = Math.min(Math.max(this.x, min), max);
+        void this.pushPosition();
+        break;
+      }
+      case "windup":
+        if (this.renderer.finished || this.moodTimer <= 0) {
+          this.enter("pounce");
+        }
+        break;
+      case "pounce": {
+        const sf = this.monitor?.scaleFactor ?? 1;
+        this.vy += GRAVITY * dt;
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        const { min, max } = this.bounds();
+        this.x = Math.min(Math.max(this.x, min), max);
+        const ground = this.groundY();
+        if ((this.y >= ground && this.vy > 0) || this.moodTimer <= 0) {
+          this.y = ground;
+          this.vx = 0;
+          this.vy = 0;
+          this.chaseCooldownUntil =
+            Date.now() + (CHASE_COOLDOWN_S + Math.random() * 60) * 1000;
+          const caught =
+            this.cursor &&
+            Math.abs(this.cursor.x - (this.x + this.winSize / 2)) <
+              220 * sf;
+          this.enter(caught ? "swat" : "idle");
+        }
+        void this.pushPosition();
+        break;
+      }
+      case "swat":
+        if (this.renderer.finished || this.moodTimer <= 0) {
+          this.enter("idle");
+        }
+        break;
+      case "alert": // waves its sign until clicked or the next claude-state event
       case "dragged":
       case "sleep":
       case "working":
@@ -272,8 +517,13 @@ export class Behavior {
   }
 
   private async pushPosition(): Promise<void> {
-    if (this.posInFlight) return;
+    // drop frames while a move is in flight, but never let a lost IPC reply
+    // wedge the flag shut — that would freeze the window while the sprite
+    // keeps animating (running in place)
+    const now = performance.now();
+    if (this.posInFlight && now - this.posInFlightSince < 300) return;
     this.posInFlight = true;
+    this.posInFlightSince = now;
     try {
       await this.win.setPosition(
         new PhysicalPosition(Math.round(this.x), Math.round(this.y)),
@@ -325,22 +575,46 @@ export class Behavior {
     }
   }
 
-  /** native window drag started */
+  /** manual drag started — the pet follows the cursor until drop() */
   startDrag(): void {
     this.lastInteraction = Date.now();
+    this.dragVx = 0;
+    this.dragVy = 0;
+    this.lastDragX = this.x;
+    this.lastDragY = this.y;
+    this.lastDragT = performance.now();
     this.enter("dragged");
   }
 
-  /** window moved (only meaningful while dragged) */
-  onWindowMoved(pos: { x: number; y: number }): void {
-    if (this.mood !== "dragged") return;
-    this.x = pos.x;
-    this.y = pos.y;
-    if (this.dropTimer) clearTimeout(this.dropTimer);
-    this.dropTimer = setTimeout(() => void this.drop(), 250);
+  /** current physical position and display scale, for the drag handler */
+  grabInfo(): { x: number; y: number; scaleFactor: number } {
+    return {
+      x: this.x,
+      y: this.y,
+      scaleFactor: this.monitor?.scaleFactor ?? 1,
+    };
   }
 
-  private async drop(): Promise<void> {
+  /** follow the cursor while dragged (physical px), tracking velocity */
+  dragTo(x: number, y: number): void {
+    if (this.mood !== "dragged") return;
+    const now = performance.now();
+    const dt = (now - this.lastDragT) / 1000;
+    if (dt > 0 && dt < 0.2) {
+      // exponential smoothing keeps the release velocity from being noise
+      this.dragVx = this.dragVx * 0.7 + ((x - this.lastDragX) / dt) * 0.3;
+      this.dragVy = this.dragVy * 0.7 + ((y - this.lastDragY) / dt) * 0.3;
+    }
+    this.lastDragX = x;
+    this.lastDragY = y;
+    this.lastDragT = now;
+    this.x = x;
+    this.y = Math.max(y, this.ceilingY());
+    void this.pushPosition();
+  }
+
+  /** pointer released — fly with the throw momentum, or settle */
+  async drop(): Promise<void> {
     if (this.mood !== "dragged") return;
     // figure out which monitor the cat was dropped on
     const monitors = await availableMonitors();
@@ -352,10 +626,17 @@ export class Behavior {
         this.y < m.position.y + m.size.height,
     );
     if (found) this.monitor = found;
-    this.vy = 0;
-    if (this.y < this.groundY() - 2) {
+
+    const MAX_THROW = 3500; // physical px/s
+    this.vx = Math.max(-MAX_THROW, Math.min(MAX_THROW, this.dragVx));
+    this.vy = Math.max(-MAX_THROW, Math.min(MAX_THROW, this.dragVy));
+
+    const thrown = Math.hypot(this.vx, this.vy) > 80;
+    if (thrown || this.y < this.groundY() - 2) {
       this.enter("falling");
     } else {
+      this.vx = 0;
+      this.vy = 0;
       this.y = this.groundY();
       void this.pushPosition();
       this.enter("idle");

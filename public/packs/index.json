@@ -1,3 +1,6 @@
 {
-  "packs": ["ragdoll-cat"]
+  "packs": [
+    "ragdoll-cat",
+    "worm"
+  ]
 }
