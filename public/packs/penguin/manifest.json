@@ -1,0 +1,26 @@
+{
+  "name": "penguin",
+  "canvas": 124,
+  "scale": 2,
+  "groundOffset": 0,
+  "animations": {},
+  "states": {
+    "idle": "idle",
+    "walk": "walking",
+    "run": "running",
+    "sit": "sitting_down",
+    "groom": "licking",
+    "yawn": "yawning",
+    "sleep": "sleep",
+    "alert": "wave_sign",
+    "working": "working",
+    "celebrate": "celebrate",
+    "pet": "poked",
+    "dragged": "idle",
+    "falling": "idle",
+    "stalk": "walking",
+    "windup": "pounce_windup",
+    "pounce": "jumping",
+    "swat": "swat"
+  }
+}

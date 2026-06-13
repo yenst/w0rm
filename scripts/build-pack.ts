@@ -19,9 +19,20 @@ const ROOT = join(dirname(import.meta.path), "..");
 /** v3 custom animations get folder names derived from their action description —
  * collapse them to the short names the state map uses */
 const ALIASES: [RegExp, string][] = [
-  [/^sleeping/, "sleep"],
+  [/^sleeping|falling_asleep/, "sleep"],
   [/celebration|excited/, "celebrate"],
-  [/kneading|working/, "working"],
+  [/kneading|working|tapping_flippers|typing/, "working"],
+  [/poked|flinch/, "poked"],
+  [/^gentle_breathing_idle/, "idle"],
+  [/^waddling_walk/, "walking"],
+  [/^sliding_headfirst/, "running"],
+  [/^crouches_then_hops/, "jumping"],
+  [/^holding_up_a_sign/, "wave_sign"],
+  [/swatting|slapping_at_the_air/, "swat"],
+  [/^crouching_low_to_the_ground/, "pounce_windup"],
+  [/^sitting_down_onto_its_belly/, "sitting_down"],
+  [/^big_sleepy_yawn/, "yawning"],
+  [/^preening/, "licking"],
 ];
 
 const alias = (name: string) =>
@@ -39,6 +50,10 @@ const PLAYBACK: Record<
   licking: { fps: 8, loop: true },
   sitting_down: { fps: 8, loop: false }, // hold the seated pose at the end
   yawning: { fps: 8, loop: false },
+  poked: { fps: 10, loop: false }, // startled flinch, plays once
+  swat: { fps: 10, loop: false },
+  pounce_windup: { fps: 8, loop: false },
+  wave_sign: { fps: 8, loop: true },
   // v3 clips start with the standing reference frame and an intro motion;
   // play that once, then loop only the tail
   sleep: { fps: 4, loop: true, loopFrom: 4 },
@@ -55,10 +70,10 @@ const STATES: Record<string, string | string[]> = {
   groom: "licking",
   yawn: "yawning",
   sleep: "sleep",
-  alert: "sitting_down",
+  alert: "wave_sign",
   working: "working",
   celebrate: "celebrate",
-  pet: "licking",
+  pet: "poked",
   dragged: "idle",
   falling: "idle",
   stalk: "walking",
@@ -94,7 +109,14 @@ async function main() {
   await $`unzip -o -q ${zipPath} -d ${work}/extracted`;
   const meta = await Bun.file(`${work}/extracted/metadata.json`).json();
 
-  const state = meta.states[0];
+  // grouped characters (states/variants) share one zip — take the state that
+  // actually carries the animations, not whichever happens to be first
+  const state = meta.states.reduce((best: any, s: any) =>
+    Object.keys(s.frames.animations).length >
+    Object.keys(best.frames.animations).length
+      ? s
+      : best,
+  );
   const folder: string = state.folder;
   const size: number = state.character.size.width;
   const animations: Record<string, Record<string, string[]>> =

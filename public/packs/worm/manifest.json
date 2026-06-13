@@ -280,6 +280,23 @@
           "swat/south/frame_006.png"
         ]
       }
+    },
+    "poked": {
+      "fps": 10,
+      "loop": false,
+      "directions": {
+        "south": [
+          "poked/south/frame_000.png",
+          "poked/south/frame_001.png",
+          "poked/south/frame_002.png",
+          "poked/south/frame_003.png",
+          "poked/south/frame_004.png",
+          "poked/south/frame_005.png",
+          "poked/south/frame_006.png",
+          "poked/south/frame_007.png",
+          "poked/south/frame_008.png"
+        ]
+      }
     }
   },
   "states": {
@@ -293,7 +310,7 @@
     "alert": "wave_sign",
     "working": "typing",
     "celebrate": "celebrate",
-    "pet": "licking",
+    "pet": "poked",
     "dragged": "drop",
     "falling": "drop",
     "stalk": "walking",

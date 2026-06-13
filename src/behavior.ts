@@ -561,16 +561,20 @@ export class Behavior {
     this.enter(state === "needs_input" ? "alert" : "working");
   }
 
-  /** quick click on the cat */
+  /** quick click on the cat — a pet; an alert wave resumes afterwards */
   tap(): void {
     this.lastInteraction = Date.now();
-    if (this.mood === "alert") {
-      // acknowledged: calm down until the next event
-      this.claude = null;
-      this.enter("pet");
-      return;
-    }
     if (this.mood !== "dragged" && this.mood !== "falling") {
+      this.enter("pet");
+    }
+  }
+
+  /** double click — acknowledge the wave and idle until the next event */
+  acknowledge(): void {
+    this.lastInteraction = Date.now();
+    if (this.claude === "needs_input") {
+      this.claude = null;
+      // react to the poke, then settle into the autonomous loop
       this.enter("pet");
     }
   }

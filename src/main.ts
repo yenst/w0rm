@@ -9,6 +9,7 @@ const DEFAULT_PACK = "worm";
 const PACK_NAME = localStorage.getItem(PACK_STORAGE_KEY) ?? DEFAULT_PACK;
 const PACK_URL = `/packs/${PACK_NAME}`;
 const DRAG_THRESHOLD_PX = 5;
+const DOUBLE_TAP_MS = 350;
 
 async function boot() {
   const canvas = document.getElementById("pet") as HTMLCanvasElement;
@@ -27,9 +28,11 @@ async function boot() {
     behavior.setClaudeState(e.payload as Parameters<typeof behavior.setClaudeState>[0]);
   });
 
-  // click = pet, move past threshold = manual drag that follows the cursor
-  // until pointerup (pointer capture keeps events flowing while we move the
-  // window underneath the cursor)
+  // click = pet, double click = acknowledge a waving alert, move past
+  // threshold = manual drag that follows the cursor until pointerup (pointer
+  // capture keeps events flowing while we move the window underneath the
+  // cursor)
+  let lastTapAt = -Infinity;
   canvas.addEventListener("pointerdown", (down) => {
     let dragging = false;
     const startX = down.screenX;
@@ -53,8 +56,18 @@ async function boot() {
     };
     const onUp = () => {
       cleanup();
-      if (dragging) void behavior.drop();
-      else behavior.tap();
+      if (dragging) {
+        void behavior.drop();
+        return;
+      }
+      const now = performance.now();
+      if (now - lastTapAt <= DOUBLE_TAP_MS) {
+        lastTapAt = -Infinity;
+        behavior.acknowledge();
+      } else {
+        lastTapAt = now;
+        behavior.tap();
+      }
     };
     const cleanup = () => {
       canvas.releasePointerCapture(down.pointerId);
